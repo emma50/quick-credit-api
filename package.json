@@ -1,0 +1,40 @@
+{
+  "name": "quick-credit-api",
+  "version": "1.0.0",
+  "description": "Quick Credit is an online lending platform that provides short term soft loans to individuals.",
+  "main": "server.js",
+  "scripts": {
+    "start": "babel-node server.js",
+    "test": "nyc mocha --require @babel/register server/test/**/*.test.js",
+    "start:dev": "nodemon --exec babel-node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emma50/quick-credit-api.git"
+  },
+  "author": "Okwuidegbe Emmanuel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emma50/quick-credit-api/issues"
+  },
+  "homepage": "https://github.com/emma50/quick-credit-api#readme",
+  "dependencies": {
+    "@babel/register": "^7.9.0",
+    "@hapi/joi": "^17.1.1",
+    "airbnb-browser-shims": "^3.3.0",
+    "babel-polyfill": "^6.26.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.6",
+    "babel-preset-airbnb": "^5.0.0",
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "mocha": "^7.1.2",
+    "nodemon": "^2.0.4",
+    "nyc": "^15.0.1"
+  }
+}
