@@ -5,8 +5,6 @@ import server from '../../server';
 chai.use(chaiHttp);
 chai.should();
 
-let token;
-
 /**
  * signup endpoint test
  */
@@ -28,7 +26,6 @@ describe('Test signup endpoints', () => {
         res.status.should.be.equal(201);
         res.body.should.be.a('object');
         res.body.data.should.have.property('token');
-        token = res.body.data.token;
         done();
       });
   });
@@ -151,7 +148,6 @@ describe('Test signin endpoints', () => {
         res.status.should.be.equal(200);
         res.body.should.be.a('object');
         res.body.data.should.have.property('token');
-        token = res.body.data.token;
         done();
       });
   });
@@ -207,88 +203,44 @@ describe('Test signin endpoints', () => {
 });
 
 /**
- * loan endpoint test
+ * users endpoint test
  */
-describe('Test loan endpoints', () => {
-  it('Should generate invalid token', (done) => {
+describe('Test users endpoints', () => {
+  it('Should allow admin to mark a user as verified', (done) => {
     chai.request(server)
-      .post('/api/v1/loans')
-      .set('x-auth-token', 'iihhhjjjkk')
+      .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
       .send({
-        amount: 10000,
-        tenor: 2,
+        status: 'verified',
       })
       .end((err, res) => {
-        res.status.should.be.equal(400);
+        res.should.have.status(200);
         res.body.should.be.a('object');
         done();
       });
   });
-  it('Should deny access without token', (done) => {
+  it('Should fail if status is ommited', (done) => {
     chai.request(server)
-      .post('/api/v1/loans')
-      .set('x-auth-token', '')
+      .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
       .send({
         amount: 10000,
         tenor: 2,
+        status: '',
       })
       .end((err, res) => {
-        res.status.should.be.equal(401);
-        res.body.should.be.a('object');
+        res.should.have.status(400);
+        res.body.should.have.eql('Status must be set to verified or unverified');
         done();
       });
   });
-  it('should create a loan', (done) => {
+  it('Should fail if another input other than verified or unverified is sent', (done) => {
     chai.request(server)
-      .post('/api/v1/loans')
-      .set('x-auth-token', token)
+      .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
       .send({
-        amount: 10000,
-        tenor: 2,
+        status: 'dsdds12fs',
       })
       .end((err, res) => {
-        res.should.have.status(201);
-        res.body.should.be.a('object');
-        done();
-      });
-  });
-  it('Should fail if amount is ommited', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans/')
-      .set('x-auth-token', token)
-      .send({
-        tenor: 2,
-      })
-      .end((err, res) => {
-        res.status.should.be.equal(400);
-        res.body.should.have.eql('"amount" is required');
-        done();
-      });
-  });
-  it('Should fail if tenor is ommited', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans/')
-      .set('x-auth-token', token)
-      .send({
-        amount: 10000,
-      })
-      .end((err, res) => {
-        res.status.should.be.equal(400);
-        res.body.should.have.eql('"tenor" is required');
-        done();
-      });
-  });
-  it('Should not allow user to create another loan if status is pending', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans/')
-      .set('x-auth-token', token)
-      .send({
-        amount: 10000,
-        tenor: 2,
-      })
-      .end((err, res) => {
-        res.status.should.be.equal(400);
-        res.body.message.should.have.eql('You have a pending loan with us');
+        res.should.have.status(400);
+        res.body.should.have.eql('Status must be set to verified or unverified');
         done();
       });
   });

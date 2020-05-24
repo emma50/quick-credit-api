@@ -5,7 +5,6 @@ import validateSignin from '../helpers/validation/signin';
 import authtok from '../helpers/authentication/authtoken';
 import currentUser from '../helpers/currentUser';
 
-// calling config function for jwt
 dotenv.config();
 
 /**
@@ -27,7 +26,7 @@ class userController {
     const { error } = validateUser(req.body);
     if (error) return res.status(400).json(error.details[0].message);
     let user = await currentUser(req.body.email);
-    if (user) return res.status(400).json('User Already Registered.');
+    if (user) return res.status(400).json({ message: 'User Already Registered.' });
     const hash = authtok.hashPassword(req.body.password);
     user = new User(
       req.body.email,
