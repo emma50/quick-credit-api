@@ -6,7 +6,7 @@ import currentLoan from '../helpers/currentLoan';
 class loansController {
   static async createLoan(req, res) {
     const { error } = validateLoan(req.body);
-    if (error) return res.status(400).json(error.details[0].message);
+    if (error) return res.status(400).json(error.message);
     const userId = req.user.id;
     const user = getUserById(userId);
     let loan = currentLoan(user.email);
