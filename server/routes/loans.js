@@ -11,8 +11,6 @@ const router = express.Router();
 
 router.get('', loanController.allLoans);
 
-router.get('/search', loanController.currentLoansNotPaid);
-
 router.get('/:loanid', loanController.specificLoans);
 
 router.post('', auth.verifyToken, loanController.createLoan);

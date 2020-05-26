@@ -113,7 +113,7 @@ describe('Test loan endpoints', () => {
   });
   it('Should not allow user to create another loan if status is pending', (done) => {
     chai.request(server)
-      .post('/api/v1/loans/')
+      .post('/api/v1/loans')
       .set('x-auth-token', token)
       .send({
         amount: 10000,
@@ -127,7 +127,7 @@ describe('Test loan endpoints', () => {
   });
   it('Should get all loan applications', (done) => {
     chai.request(server)
-      .get('/api/v1/loans/')
+      .get('/api/v1/loans')
       .set('x-auth-token', token)
       .send()
       .end((err, res) => {
@@ -157,7 +157,17 @@ describe('Test loan endpoints', () => {
   });
   it('Should get current loans (not fully repaid)', (done) => {
     chai.request(server)
-      .get('/api/v1/loans/search?status=approved&repaid=false')
+      .get('/api/v1/loans?status=approved&repaid=false')
+      .set('x-auth-token', token)
+      .send()
+      .end((err, res) => {
+        res.status.should.be.equal(200);
+        done();
+      });
+  });
+  it('Should get all repaid loans', (done) => {
+    chai.request(server)
+      .get('/api/v1/loans?status=approved&repaid=true')
       .set('x-auth-token', token)
       .send()
       .end((err, res) => {

@@ -55,15 +55,6 @@ class loansController {
     });
   }
 
-  static async allLoans(req, res) {
-    const loans = await Loan.fetchAll();
-    if (loans && loans.length === 0) return res.status(400).json({ message: 'No Loan Application Available' });
-    return res.status(200).json({
-      status: 200,
-      data: loans,
-    });
-  }
-
   static async specificLoans(req, res) {
     const loan = await getSpecificLoan(Number(req.params.loanid));
     if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
@@ -73,15 +64,16 @@ class loansController {
     });
   }
 
-  static async currentLoansNotPaid(req, res) {
+  static async allLoans(req, res) {
+    const loans = await Loan.fetchAll();
+    if (loans && loans.length === 0) return res.status(400).json({ message: 'No Loan Application Available' });
     const { status } = req.query;
     const { repaid } = req.query;
-    const result = await notPaid(status, JSON.parse(repaid));
-    if (result && result.length === 0) return res.status(400).json({ message: 'No Loan Application Available' });
-    return res.status(200).json({
-      status: 200,
-      data: result,
-    });
+    if ((status !== undefined) && (repaid !== undefined)) {
+      const result = await notPaid(status, JSON.parse(repaid));
+      return res.status(200).json({ status: 200, data: result });
+    }
+    return res.status(200).json({ status: 200, data: loans });
   }
 }
 
