@@ -3,14 +3,15 @@ import validateLoan from '../helpers/validation/loans';
 import getUserById from '../helpers/getUserId';
 import currentLoan from '../helpers/currentLoan';
 import getSpecificLoan from '../helpers/specificLoan';
+import notPaid from '../helpers/notPaid';
 
 class loansController {
   static async createLoan(req, res) {
-    const { error } = validateLoan(req.body);
+    const { error } = await validateLoan(req.body);
     if (error) return res.status(400).json(error.message);
     const userId = req.user.id;
-    const user = getUserById(userId);
-    let loan = currentLoan(user.email);
+    const user = await getUserById(userId);
+    let loan = await currentLoan(user.email);
     if (loan && loan.status === 'pending') {
       return res.status(400).json({ message: `You have a ${loan.status} loan with us` });
     }
@@ -55,7 +56,7 @@ class loansController {
   }
 
   static async allLoans(req, res) {
-    const loans = Loan.fetchAll();
+    const loans = await Loan.fetchAll();
     if (loans && loans.length === 0) return res.status(400).json({ message: 'No Loan Application Available' });
     return res.status(200).json({
       status: 200,
@@ -64,11 +65,22 @@ class loansController {
   }
 
   static async specificLoans(req, res) {
-    const loan = getSpecificLoan(Number(req.params.loanid));
+    const loan = await getSpecificLoan(Number(req.params.loanid));
     if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
     return res.status(200).json({
       status: 200,
       data: loan,
+    });
+  }
+
+  static async currentLoansNotPaid(req, res) {
+    const { status } = req.query;
+    const { repaid } = req.query;
+    const result = await notPaid(status, JSON.parse(repaid));
+    if (result && result.length === 0) return res.status(400).json({ message: 'No Loan Application Available' });
+    return res.status(200).json({
+      status: 200,
+      data: result,
     });
   }
 }
