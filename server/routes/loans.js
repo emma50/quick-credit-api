@@ -9,10 +9,12 @@ const router = express.Router();
 // @desc Test post route
 // @access Public
 
-router.get('', loanController.allLoans);
+router.get('', auth.verifyToken, loanController.allLoans);
 
-router.get('/:loanid', loanController.specificLoans);
+router.get('/:loanid', auth.verifyToken, loanController.specificLoans);
 
 router.post('', auth.verifyToken, loanController.createLoan);
+
+router.patch('/:loanid', auth.verifyToken, loanController.adminApproveLoans);
 
 export default router;

@@ -175,4 +175,40 @@ describe('Test loan endpoints', () => {
         done();
       });
   });
+  it('Should allow admin to approve/reject a loan (approved)', (done) => {
+    chai.request(server)
+      .patch('/api/v1/loans/1')
+      .set('x-auth-token', token)
+      .send({
+        status: 'approved',
+      })
+      .end((err, res) => {
+        res.status.should.be.equal(200);
+        done();
+      });
+  });
+  it('Should allow admin to approve/reject a loan (rejected)', (done) => {
+    chai.request(server)
+      .patch('/api/v1/loans/1')
+      .set('x-auth-token', token)
+      .send({
+        status: 'rejected',
+      })
+      .end((err, res) => {
+        res.status.should.be.equal(200);
+        done();
+      });
+  });
+  it('Should fail if status is ommited', (done) => {
+    chai.request(server)
+      .patch('/api/v1/loans/1')
+      .set('x-auth-token', token)
+      .send({
+        status: 'kkll',
+      })
+      .end((err, res) => {
+        res.status.should.be.equal(400);
+        done();
+      });
+  });
 });
