@@ -5,6 +5,8 @@ import server from '../../server';
 chai.use(chaiHttp);
 chai.should();
 
+let token;
+
 /**
  * signup endpoint test
  */
@@ -148,6 +150,7 @@ describe('Test signin endpoints', () => {
         res.status.should.be.equal(200);
         res.body.should.be.a('object');
         res.body.data.should.have.property('token');
+        token = res.body.data.token;
         done();
       });
   });
@@ -209,6 +212,7 @@ describe('Test users endpoints', () => {
   it('Should allow admin to mark a user as verified', (done) => {
     chai.request(server)
       .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
+      .set('x-auth-token', token)
       .send({
         status: 'verified',
       })
@@ -221,6 +225,7 @@ describe('Test users endpoints', () => {
   it('Should fail if status is ommited', (done) => {
     chai.request(server)
       .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
+      .set('x-auth-token', token)
       .send({
         amount: 10000,
         tenor: 2,
@@ -235,6 +240,7 @@ describe('Test users endpoints', () => {
   it('Should fail if another input other than verified or unverified is sent', (done) => {
     chai.request(server)
       .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
+      .set('x-auth-token', token)
       .send({
         status: 'dsdds12fs',
       })

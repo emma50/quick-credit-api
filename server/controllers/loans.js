@@ -4,6 +4,7 @@ import getUserById from '../helpers/getUserId';
 import currentLoan from '../helpers/currentLoan';
 import getSpecificLoan from '../helpers/specificLoan';
 import notPaid from '../helpers/notPaid';
+import validateLoanStatus from '../helpers/validation/loanStatus';
 
 class loansController {
   static async createLoan(req, res) {
@@ -74,6 +75,39 @@ class loansController {
       return res.status(200).json({ status: 200, data: result });
     }
     return res.status(200).json({ status: 200, data: loans });
+  }
+
+  static async adminApproveLoans(req, res) {
+    const loan = await getSpecificLoan(Number(req.params.loanid));
+    if (!loan) return res.status(404).json({ message: 'No Loan Application Available' });
+    const { error } = validateLoanStatus(req.body);
+    if (error) return res.status(400).json(error.message);
+    Object.assign(loan, { status: req.body.status });
+    const {
+      id, amount, tenor, status, paymentInstallment, interest,
+    } = loan;
+    if (status === 'rejected') {
+      return res.status(200).json({
+        status: 200,
+        data: {
+          loanId: id,
+          loanAmount: amount,
+          tenor,
+          status,
+        },
+      });
+    }
+    return res.status(200).json({
+      status: 200,
+      data: {
+        loanId: id,
+        loanAmount: amount,
+        tenor,
+        status,
+        monthlyInstallment: paymentInstallment,
+        interest,
+      },
+    });
   }
 }
 
