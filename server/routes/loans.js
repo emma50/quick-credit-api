@@ -17,4 +17,6 @@ router.post('', auth.verifyToken, loanController.createLoan);
 
 router.patch('/:loanid', auth.verifyToken, loanController.adminApproveLoans);
 
+router.post('/:loanid', auth.verifyToken, loanController.loanRepayments);
+
 export default router;
