@@ -209,6 +209,16 @@ describe('Test signin endpoints', () => {
  * users endpoint test
  */
 describe('Test users endpoints', () => {
+  it('Should allow admin to get all users', (done) => {
+    chai.request(server)
+      .get('/api/v1/users/')
+      .set('x-auth-token', token)
+      .send()
+      .end((err, res) => {
+        res.should.have.status(200);
+        done();
+      });
+  });
   it('Should allow admin to mark a user as verified', (done) => {
     chai.request(server)
       .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
