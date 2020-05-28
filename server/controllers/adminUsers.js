@@ -1,3 +1,4 @@
+import User from '../models/user';
 import currentUser from '../helpers/currentUser';
 import validateUserStatus from '../helpers/validation/status';
 
@@ -22,6 +23,12 @@ class adminUserController {
         status,
       },
     });
+  }
+
+  static async adminViewUsers(req, res) {
+    const users = await User.fetchAll();
+    if (users && users.length === 0) return res.status(400).json({ message: 'No User Available' });
+    return res.status(200).json({ status: 200, data: users });
   }
 }
 

@@ -10,5 +10,6 @@ const router = express.Router();
 // @access Public
 
 router.patch('/:useremail/verify', auth.verifyToken, adminUserController.adminVerifyUser);
+router.get('', auth.verifyToken, adminUserController.adminViewUsers);
 
 export default router;
