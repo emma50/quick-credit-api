@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - "12.14.1"
+
+env:
+  global:
+  # Code Climate Reporter gotten from code climate
+    - CC_TEST_REPORTER_ID=599b6836ffbd299031343e785c5050054df14009cbce2ca85c4506ee363399dd
+
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+script:  
+  - npm install
+  - npm run test
+
+after_script:  
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+after_success:
+  - npm run coverage
+  - npm run coveralls
+
+notifications:
+  email: false
