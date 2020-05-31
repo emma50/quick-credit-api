@@ -5,5 +5,3 @@ coverage/
 .env
 dist/
 logs/app.log
-.coveralls.yml
-.codeclimate.yml
