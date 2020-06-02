@@ -3,6 +3,7 @@ import express from 'express';
 import loanController from '../controllers/loans';
 import auth from '../helpers/authentication/auth';
 import checkUser from '../middleware/checkUser';
+import isAdminCheck from '../middleware/isAdmin';
 
 const router = express.Router();
 
@@ -10,16 +11,16 @@ const router = express.Router();
 // @desc Test post route
 // @access Public
 
-router.get('', auth.verifyToken, loanController.allLoans);
+router.get('', auth.verifyToken, isAdminCheck, loanController.allLoans);
 
-router.get('/:loanid', auth.verifyToken, loanController.specificLoans);
+router.get('/:loanid', auth.verifyToken, isAdminCheck, loanController.specificLoans);
 
-router.get('/:loanid/repayments', auth.verifyToken, checkUser, loanController.viewAllLoans);
+router.get('/:loanid/repayments', auth.verifyToken, checkUser, loanController.viewAllRepayments);
 
-router.post('/:loanid/repayment', auth.verifyToken, loanController.loanRepayments);
+router.post('/:loanid/repayment', auth.verifyToken, isAdminCheck, loanController.loanRepayments);
 
 router.post('', auth.verifyToken, loanController.createLoan);
 
-router.patch('/:loanid', auth.verifyToken, loanController.adminApproveLoans);
+router.patch('/:loanid', auth.verifyToken, isAdminCheck, loanController.adminApproveLoans);
 
 export default router;
