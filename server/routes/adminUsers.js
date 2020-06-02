@@ -2,6 +2,7 @@ import express from 'express';
 
 import adminUserController from '../controllers/adminUsers';
 import auth from '../helpers/authentication/auth';
+import isAdminCheck from '../middleware/isAdmin';
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const router = express.Router();
 // @desc Test post route
 // @access Public
 
-router.patch('/:useremail/verify', auth.verifyToken, adminUserController.adminVerifyUser);
-router.get('', auth.verifyToken, adminUserController.adminViewUsers);
+router.patch('/:useremail/verify', auth.verifyToken, isAdminCheck, adminUserController.adminVerifyUser);
+router.get('', auth.verifyToken, isAdminCheck, adminUserController.adminViewUsers);
 
 export default router;

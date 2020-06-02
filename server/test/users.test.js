@@ -1,11 +1,10 @@
-import chai from 'chai';
+import chai, { assert } from 'chai';
 import chaiHttp from 'chai-http';
 import server from '../../server';
+import userInfo from './userInfo';
 
 chai.use(chaiHttp);
 chai.should();
-
-let token;
 
 /**
  * signup endpoint test
@@ -14,19 +13,14 @@ describe('Test signup endpoints', () => {
   it('Should signup a user', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signup/')
-      .send({
-        email: 'danielufeli@yahoo.com',
-        mobileno: '08082205956',
-        firstName: 'Daniel',
-        lastName: 'Ufeli',
-        password: 'Dom@2019',
-        address: '26, Fagbeyiro Street, Alakuko',
-        status: 'unverified',
-        isAdmin: false,
-      })
+      .send(userInfo.signup)
       .end((err, res) => {
         res.status.should.be.equal(201);
-        res.body.should.be.a('object');
+        assert.equal((res.body.data.id), 4);
+        assert.equal((res.body.data.firstName), 'Daniel');
+        assert.equal((res.body.data.lastName), 'Ufeli');
+        assert.equal((res.body.data.mobileno), '08082205956');
+        assert.equal((res.body.data.email), 'danielufeli@yahoo.com');
         res.body.data.should.have.property('token');
         done();
       });
@@ -34,14 +28,7 @@ describe('Test signup endpoints', () => {
   it('Should fail if email is ommited', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signup/')
-      .send({
-        email: '',
-        mobileno: '08082205956',
-        firstName: 'Daniel',
-        lastName: 'Ufeli',
-        password: 'Dom@2019',
-        address: '26, Fagbeyiro Street, Alakuko',
-      })
+      .send(userInfo.signupEmailOmitted)
       .end((err, res) => {
         res.status.should.be.equal(400);
         res.body.should.have.eql('"email" is not allowed to be empty');
@@ -51,14 +38,7 @@ describe('Test signup endpoints', () => {
   it('Should fail if email is invalid', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signup/')
-      .send({
-        email: 'daniel:daniel.com',
-        mobileno: '08082205956',
-        firstName: 'Daniel',
-        lastName: 'Ufeli',
-        password: 'Dom@2019',
-        address: '26, Fagbeyiro Street, Alakuko',
-      })
+      .send(userInfo.invalidEmail)
       .end((err, res) => {
         res.status.should.be.equal(400);
         res.body.should.have.eql('"email" must be a valid email');
@@ -68,14 +48,7 @@ describe('Test signup endpoints', () => {
   it('Should fail if firstName is ommited', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signup/')
-      .send({
-        email: 'daniel@daniel.com',
-        mobileno: '08082205956',
-        firstName: '',
-        lastName: 'Ufeli',
-        password: 'Dom@2019',
-        address: '26, Fagbeyiro Street, Alakuko',
-      })
+      .send(userInfo.ommitedFirstname)
       .end((err, res) => {
         res.status.should.be.equal(400);
         res.body.should.have.eql('"firstName" is not allowed to be empty');
@@ -85,14 +58,7 @@ describe('Test signup endpoints', () => {
   it('Should fail if lastName is ommited', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signup/')
-      .send({
-        email: 'daniel@daniel.com',
-        mobileno: '08082205956',
-        firstName: 'Daniel',
-        lastName: '',
-        password: 'Dom@2019',
-        address: '26, Fagbeyiro Street, Alakuko',
-      })
+      .send(userInfo.ommitedLastname)
       .end((err, res) => {
         res.status.should.be.equal(400);
         res.body.should.have.eql('"lastName" is not allowed to be empty');
@@ -102,14 +68,7 @@ describe('Test signup endpoints', () => {
   it('Should fail if password is ommited', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signup/')
-      .send({
-        email: 'daniel@daniel.com',
-        mobileno: '08082205956',
-        firstName: 'Daniel',
-        lastName: 'Ufeli',
-        password: '',
-        address: '26, Fagbeyiro Street, Alakuko',
-      })
+      .send(userInfo.ommitedPassword)
       .end((err, res) => {
         res.status.should.be.equal(400);
         res.body.should.have.eql('"password" is not allowed to be empty');
@@ -119,14 +78,7 @@ describe('Test signup endpoints', () => {
   it('Should fail if address is ommited', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signup/')
-      .send({
-        email: 'daniel@daniel.com',
-        mobileno: '08082205956',
-        firstName: 'Daniel',
-        lastName: 'Ufeli',
-        password: 'Dom@2019',
-        address: '',
-      })
+      .send(userInfo.ommitedAddress)
       .end((err, res) => {
         res.status.should.be.equal(400);
         res.body.should.have.eql('"address" is not allowed to be empty');
@@ -142,25 +94,18 @@ describe('Test signin endpoints', () => {
   it('Should signin a user', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signin/')
-      .send({
-        email: 'danielufeli@yahoo.com',
-        password: 'Dom@2019',
-      })
+      .send(userInfo.user)
       .end((err, res) => {
         res.status.should.be.equal(200);
         res.body.should.be.a('object');
         res.body.data.should.have.property('token');
-        token = res.body.data.token;
         done();
       });
   });
   it('should fail if email is ommited', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signin/')
-      .send({
-        email: '',
-        password: 'Dom@2019',
-      })
+      .send(userInfo.pass)
       .end((err, res) => {
         res.should.have.status(400);
         done();
@@ -169,10 +114,7 @@ describe('Test signin endpoints', () => {
   it('should fail if password is ommited', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signin/')
-      .send({
-        email: 'danielufeli@yahoo.com',
-        password: '',
-      })
+      .send(userInfo.email)
       .end((err, res) => {
         res.should.have.status(400);
         done();
@@ -181,10 +123,7 @@ describe('Test signin endpoints', () => {
   it('should fail if Email is invalid', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signin/')
-      .send({
-        email: 'danielufeliyahoo.com',
-        password: 'Domi@2019',
-      })
+      .send(userInfo.email)
       .end((err, res) => {
         res.should.have.status(400);
         done();
@@ -193,70 +132,10 @@ describe('Test signin endpoints', () => {
   it('should fail if Password is invalid', (done) => {
     chai.request(server)
       .post('/api/v1/auth/signin/')
-      .send({
-        email: 'danielufeli@yahoo.com',
-        password: 'd',
-      })
+      .send(userInfo.invalidpassword)
       .end((err, res) => {
         res.should.have.status(400);
         res.body.should.be.a('object');
-        done();
-      });
-  });
-});
-
-/**
- * users endpoint test
- */
-describe('Test users endpoints', () => {
-  it('Should allow admin to get all users', (done) => {
-    chai.request(server)
-      .get('/api/v1/users/')
-      .set('x-auth-token', token)
-      .send()
-      .end((err, res) => {
-        res.should.have.status(200);
-        done();
-      });
-  });
-  it('Should allow admin to mark a user as verified', (done) => {
-    chai.request(server)
-      .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
-      .set('x-auth-token', token)
-      .send({
-        status: 'verified',
-      })
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.body.should.be.a('object');
-        done();
-      });
-  });
-  it('Should fail if status is ommited', (done) => {
-    chai.request(server)
-      .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
-      .set('x-auth-token', token)
-      .send({
-        amount: 10000,
-        tenor: 2,
-        status: '',
-      })
-      .end((err, res) => {
-        res.should.have.status(400);
-        res.body.should.have.eql('Status must be set to verified or unverified');
-        done();
-      });
-  });
-  it('Should fail if another input other than verified or unverified is sent', (done) => {
-    chai.request(server)
-      .patch('/api/v1/users/danielufeli@yahoo.com/verify/')
-      .set('x-auth-token', token)
-      .send({
-        status: 'dsdds12fs',
-      })
-      .end((err, res) => {
-        res.should.have.status(400);
-        res.body.should.have.eql('Status must be set to verified or unverified');
         done();
       });
   });
