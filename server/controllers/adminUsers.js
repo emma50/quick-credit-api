@@ -4,7 +4,7 @@ import validateUserStatus from '../helpers/validation/status';
 
 class adminUserController {
   static async adminVerifyUser(req, res) {
-    const user = currentUser(req.params.useremail);
+    const user = await currentUser(req.params.useremail);
     if (!user) return res.status(404).json({ message: 'The user with the given email was not found' });
     const { error } = validateUserStatus(req.body);
     if (error) return res.status(400).json(error.message);
@@ -27,7 +27,7 @@ class adminUserController {
 
   static async adminViewUsers(req, res) {
     const users = await User.fetchAll();
-    if (users && users.length === 0) return res.status(400).json({ message: 'No User Available' });
+    if (users && users.length === 0) return res.status(404).json({ message: 'No User Available' });
     return res.status(200).json({ status: 200, data: users });
   }
 }

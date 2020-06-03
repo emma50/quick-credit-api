@@ -181,6 +181,7 @@ describe('Test loan endpoints User', () => {
         done();
       });
   });
+  // ADMIN SECTION
   it('Should allow admin to mark a user as verified', (done) => {
     chai.request(server)
       .patch('/api/v1/users/user@quickcredit.com/verify/')

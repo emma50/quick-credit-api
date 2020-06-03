@@ -95,6 +95,12 @@ const userInfo = {
     email: 'danielufeliyahoo.com',
     password: 'd',
   },
+  // statusVerify: {
+  //   status: 'verified',
+  // },
+  // wrongStatus: {
+  //   status: 'sasasas',
+  // },
 };
 
 export default userInfo;
