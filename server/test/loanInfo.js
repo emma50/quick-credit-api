@@ -15,9 +15,6 @@ const loanInfo = {
   wrongStatus: {
     status: 'sasasas',
   },
-  statusVerify: {
-    status: 'verified',
-  },
   repaymentAmount: {
     paidAmount: 2625.00,
   },
@@ -26,6 +23,9 @@ const loanInfo = {
   },
   highAmount: {
     paidAmount: 100000,
+  },
+  statusVerify: {
+    status: 'verified',
   },
   repayStatus: {
     status: 'pending',

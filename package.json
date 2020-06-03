@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "babel-node server.js",
-    "test": "nyc mocha --timeout 100000 --require @babel/register --require babel-polyfill server/test/**/*.test.js",
+    "test": "nyc mocha --timeout 10000000 --require @babel/register --require babel-polyfill server/test/**/*.test.js",
     "start:dev": "nodemon --exec babel-node server.js"
   },
   "repository": {
