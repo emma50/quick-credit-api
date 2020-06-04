@@ -6,8 +6,8 @@ import userInfo from './userInfo';
 chai.use(chaiHttp);
 chai.should();
 
-let adminToken;
-let userToken;
+let adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyfQ.Ofr0EvUpjuXe5AzLEmqD3fEcPuobySGofIW4rcWocSI';
+let userToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaXNBZG1pbiI6ZmFsc2UsImlhdCI6MTUxNjIzOTAyMn0.SkypLPaygHuCYyTpbU9Xrek9XEtFNhcJjFmEzGsK3uE';
 describe('Test adminUser endpoint', () => {
   before((done) => {
     chai.request(server)
