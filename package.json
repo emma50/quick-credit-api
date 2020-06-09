@@ -4,11 +4,13 @@
   "description": "Quick Credit is an online lending platform that provides short term soft loans to individuals.",
   "main": "server.js",
   "scripts": {
-    "start": "babel-node server.js",
+    "build": "babel server --out-dir dist",
+    "start": "node dist/server.js",
     "test": "mocha --timeout 10000000 --require @babel/register server/test/**/*.test.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
-    "start:dev": "nodemon --exec babel-node server.js"
+    "start:dev": "nodemon --exec babel-node server.js",
+    "heroku-postbuild": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -24,15 +26,10 @@
   },
   "homepage": "https://github.com/emma50/quick-credit-api#readme",
   "dependencies": {
-    "@babel/cli": "^7.10.1",
-    "@babel/core": "^7.9.6",
-    "@babel/node": "^7.8.7",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/register": "^7.9.0",
+    "@babel/runtime": "^7.10.2",
     "@hapi/joi": "^17.1.1",
     "airbnb-browser-shims": "^3.3.0",
     "babel-polyfill": "^6.26.0",
-    "babel-preset-airbnb": "^5.0.0",
     "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
@@ -47,8 +44,13 @@
     "swagger-ui-express": "^4.1.4"
   },
   "devDependencies": {
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/register": "^7.9.0",
     "@babel/plugin-transform-runtime": "^7.10.1",
-    "@babel/runtime": "^7.10.2",
+    "babel-preset-airbnb": "^5.0.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.0.0",
     "eslint-config-airbnb-base": "^14.1.0",
