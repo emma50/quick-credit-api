@@ -3,7 +3,7 @@
 ___
 
 
-## Quick Credit 
+## Quick Credit API
 is an online lending platform that provides short term soft loans to individuals. This
 helps solve problems of financial inclusion as a way to alleviate poverty and empower low
 income earners.
@@ -12,7 +12,7 @@ ___
 
 
 ## Technologies
-Quick Credit was developed with JavaScript (ES6), Node.js using [Express 4](http://expressjs.com/). <br/>
+Quick Credit API was developed with JavaScript (ES6), Node.js using [Express 4](http://expressjs.com/). <br/>
 with [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)
 
 ___
@@ -62,7 +62,7 @@ npm install
 npm start
 ```
 
-Quick Credit app should now be running on [localhost:3000](http://localhost:3000/).
+Quick Credit API should now be running on [localhost:3000](http://localhost:3000/).
 ___
 
 ## Author
