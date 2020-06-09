@@ -9,7 +9,7 @@
     "test": "mocha --timeout 10000000 --require @babel/register server/test/**/*.test.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
-    "start:dev": "nodemon --exec babel-node server.js",
+    "start:dev": "nodemon --exec babel-node server/server.js",
     "heroku-postbuild": "npm run build"
   },
   "repository": {
