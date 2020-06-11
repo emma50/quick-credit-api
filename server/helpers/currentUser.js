@@ -1,6 +1,15 @@
-import User from '../models/user';
+import userObjects from '../middleware/userObjects';
 
-const users = User.fetchAll();
-const currentUser = (email) => users.find((e) => e.email === email);
+export default class checkUser {
+  static findUserExist(req, res, next) {
+    const user = userObjects.getUser(req);
+    if (user) return res.status(401).json({ status: 401, message: 'User Already Registered.' });
+    return next();
+  }
 
-export default currentUser;
+  static findUserNotExist(req, res, next) {
+    const user = userObjects.getUser(req);
+    if (!user) return res.status(401).json({ status: 401, message: 'Your email or password is incorrect' });
+    return next();
+  }
+}

@@ -1,21 +1,16 @@
 import Loan from '../models/loan';
 import Repayment from '../models/repayment';
-import validateLoan from '../helpers/validation/loans';
 import getUserById from '../helpers/getUserId';
 import currentLoan from '../helpers/currentLoan';
 import getSpecificLoan from '../helpers/specificLoan';
 import notPaid from '../helpers/notPaid';
-import validateLoanStatus from '../helpers/validation/loanStatus';
-import validatePaidAmount from '../helpers/validation/paidAmount';
 import repaymentHistory from '../helpers/repaymentHistory';
 
 class loansController {
   static async createLoan(req, res) {
-    const { error } = await validateLoan(req.body);
-    if (error) return res.status(400).json(error.message);
     const userId = req.user.id;
     const user = await getUserById(userId);
-    let loan = await currentLoan(user.email);
+    let loan = currentLoan(user.email);
     if (loan && loan.status === 'pending') {
       return res.status(400).json({ message: `You have a ${loan.status} loan with us` });
     }
@@ -60,8 +55,6 @@ class loansController {
   }
 
   static async loanRepayments(req, res) {
-    const { error } = validatePaidAmount(req.body);
-    if (error) return res.status(400).json(error.message);
     const loan = await getSpecificLoan(Number(req.params.loanid));
     if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
     if (loan && loan.status === 'pending') return res.status(400).json({ message: `The User loan status is still ${loan.status}` });
@@ -119,8 +112,6 @@ class loansController {
   static async adminApproveLoans(req, res) {
     const loan = await getSpecificLoan(Number(req.params.loanid));
     if (!loan) return res.status(404).json({ message: 'No Loan Application Available' });
-    const { error } = validateLoanStatus(req.body);
-    if (error) return res.status(400).json(error.message);
     Object.assign(loan, { status: req.body.status });
     const {
       id, amount, tenor, status, paymentInstallment, interest,
@@ -149,14 +140,10 @@ class loansController {
     });
   }
 
-  static async viewAllRepayments(req, res, next) {
-    try {
-      const repayments = await repaymentHistory(Number(req.params.loanid));
-      if (!repayments) return res.status(400).json({ message: 'No Repayment History Found' });
-      return res.status(200).json({ status: 200, data: repayments });
-    } catch (ex) {
-      return next(ex);
-    }
+  static async viewAllRepayments(req, res) {
+    const repayments = await repaymentHistory(Number(req.params.loanid));
+    if (!repayments) return res.status(400).json({ message: 'No Repayment History Found' });
+    return res.status(200).json({ status: 200, data: repayments });
   }
 }
 
