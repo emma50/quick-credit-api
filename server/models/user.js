@@ -28,6 +28,10 @@ class User {
   static updateUserStatus(user, userstatus) {
     Object.assign(user, { status: userstatus });
   }
+
+  static userById(userId) {
+    return users.find((user) => user.id === userId);
+  }
 }
 
 export default User;
