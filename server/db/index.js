@@ -2,12 +2,17 @@ import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
-let databaseUrl = '';
-databaseUrl = (process.env.NODE_ENV === 'PRODUCTION' ? process.env.DATABASE_URL_PRODUCTION : process.env.DATABASE_URL);
+
 const pool = new Pool({
-  connectionString: databaseUrl,
+  connectionString: process.env.DATABASE_URL,
 });
 
+/**
+ * DB Query
+ * @param {object} req
+ * @param {object} res
+ * @returns {object} object
+ */
 export default {
   query(text, params) {
     return new Promise((resolve, reject) => {
