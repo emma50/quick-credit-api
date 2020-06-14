@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
-import User from '../models/user';
+import userModel from '../models/userModel';
 import authtok from '../helpers/authentication/authtoken';
 import userObjects from '../middleware/userObjects';
+import db from '../db/index';
 
 dotenv.config();
 
@@ -22,30 +23,28 @@ class userController {
    */
   static async userSignup(req, res) {
     const hash = authtok.hashPassword(req.body.password);
-    const user = new User(
-      req.body.email,
-      req.body.mobileno,
-      req.body.firstName,
-      req.body.lastName,
-      hash,
-      req.body.address,
-    );
-    await user.save();
-    const {
-      id, firstName, lastName, email, mobileno,
-    } = user;
-    const userToken = authtok.generateToken('');
-    return res.status(201).json({
-      status: 201,
-      data: {
-        token: userToken,
-        id,
-        firstName,
-        lastName,
-        mobileno,
-        email,
-      },
-    });
+    const values = userObjects.newUser(hash, req);
+    try {
+      const { rows } = await db.query(userModel.createUser, values);
+      const {
+        id, isadmin, firstname, lastname, email,
+      } = rows[0];
+      // const userToken = authtok.generateToken(id, isadmin, email, firstname, lastname);
+      const userToken = authtok.generateToken(id, isadmin);
+      res.status(201).json({
+        status: 201,
+        message: `Hi, ${firstname} You have successfully registered`,
+        data: {
+          token: userToken,
+          id,
+          firstname,
+          lastname,
+          email,
+        },
+      });
+    } catch (err) {
+      res.status(500).json(err);
+    }
   }
 
   /**

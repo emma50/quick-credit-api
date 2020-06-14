@@ -9,8 +9,13 @@ const authtoken = {
   comparePassword(hashPassword, password) {
     return bcrypt.compareSync(password, hashPassword);
   },
-  generateToken(id, isAdmin) {
-    const token = jwt.sign({ userid: id, admin: isAdmin }, process.env.JWTPRIVATEKEY);
+  // generateToken(id, isadmin, email, firstname, lastname)
+  generateToken(id, isadmin) {
+    const token = jwt.sign({ userid: id, admin: isadmin }, process.env.JWTPRIVATEKEY);
+    // return token;
+    // const token = jwt.sign({
+    //   userid: id, admin: isadmin, uemail: email, fname: firstname, lname: lastname,
+    // }, process.env.JWTPRIVATEKEY);
     return token;
   },
 };
