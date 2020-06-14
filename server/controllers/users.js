@@ -57,25 +57,32 @@ class userController {
    * @memberof userController
    */
   static async userSignin(req, res) {
-    const user = userObjects.getUser(req);
-    if (!user) return res.status(401).json({ message: 'Your email or password is incorrect' });
-    const validPassword = authtok.comparePassword(user.password, req.body.password);
-    if (!validPassword) return res.status(401).json({ status: 401, message: 'Your email or password is incorrect' });
-    const {
-      id, firstName, lastName, email, mobileno, isAdmin,
-    } = user;
-    const userToken = authtok.generateToken(id, isAdmin);
-    return res.status(200).json({
-      status: 200,
-      data: {
-        token: userToken,
-        id,
-        firstName,
-        lastName,
-        mobileno,
-        email,
-      },
-    });
+    try {
+      const { rows } = await db.query(userModel.currentUser, [req.body.email]);
+      const result = rows[0];
+      if (!result) { res.status(401).json({ status: 401, message: 'Your email is incorrect' }); }
+      const validPassword = authtok.comparePassword(result.password, req.body.password);
+      if (!validPassword) { res.status(401).json({ status: 401, message: 'Your password is incorrect' }); }
+      const {
+        id, firstname, lastname, mobileno, email, isadmin,
+      } = result;
+      // const userToken = authtok.generateToken(id, isadmin, email, firstname, lastname);
+      const userToken = authtok.generateToken(id, isadmin);
+      return res.status(200).json({
+        status: 200,
+        message: `Hi, ${firstname} You have successfully logged in`,
+        data: {
+          token: userToken,
+          id,
+          firstname,
+          lastname,
+          email,
+          mobileno,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json(error);
+    }
   }
 }
 
