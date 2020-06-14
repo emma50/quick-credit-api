@@ -17,8 +17,8 @@ describe('Test signup endpoints', () => {
       .end((err, res) => {
         res.status.should.be.equal(201);
         assert.equal((res.body.data.id), 5);
-        assert.equal((res.body.data.firstName), 'Daniel');
-        assert.equal((res.body.data.lastName), 'Ufeli');
+        assert.equal((res.body.data.firstname), 'Daniel');
+        assert.equal((res.body.data.lastname), 'Ufeli');
         assert.equal((res.body.data.mobileno), '08082205956');
         assert.equal((res.body.data.email), 'danielufeli@yahoo.com');
         res.body.data.should.have.property('token');
