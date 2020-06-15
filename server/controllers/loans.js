@@ -25,6 +25,14 @@ class loansController {
     } catch (error) { return res.status(500).json(error); }
   }
 
+  static async specificLoans(req, res) {
+    const { rows } = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
+    const loan = rows[0];
+    if (!loan) return res.status(404).json({ status: 404, message: 'The loan application with the given ID was not found' });
+    return res.status(200).json({ status: 200, data: loan });
+  }
+
+
   static async loanRepayments(req, res) {
     const loan = await getSpecificLoan(Number(req.params.loanid));
     if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
@@ -56,15 +64,6 @@ class loansController {
         paidAmount,
         balance,
       },
-    });
-  }
-
-  static async specificLoans(req, res) {
-    const loan = await getSpecificLoan(Number(req.params.loanid));
-    if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
-    return res.status(200).json({
-      status: 200,
-      data: loan,
     });
   }
 
