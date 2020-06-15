@@ -2,7 +2,6 @@ import express from 'express';
 
 import loanController from '../controllers/loans';
 import auth from '../helpers/authentication/auth';
-import checkUser from '../middleware/checkUser';
 import isAdminCheck from '../middleware/isAdmin';
 import allCustomValidator from '../middleware/allCustomValidator';
 import validateLoan from '../helpers/validation/loans';
@@ -29,7 +28,7 @@ router.get('', verifyToken, isAdminCheck, allLoans);
 
 router.get('/:loanid', verifyToken, isAdminCheck, specificLoans);
 
-router.get('/:loanid/repayments', verifyToken, checkUser, viewAllRepayments);
+router.get('/:loanid/repayments', verifyToken, viewAllRepayments);
 
 router.post('/:loanid/repayment', verifyToken, isAdminCheck, allCustomValidator(validatePaidAmount), loanRepayments);
 

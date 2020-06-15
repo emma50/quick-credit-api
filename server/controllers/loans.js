@@ -1,9 +1,7 @@
-// import Repayment from '../models/repayment';
-// import getSpecificLoan from '../helpers/specificLoan';
-import repaymentHistory from '../helpers/repaymentHistory';
 import loanObjects from '../middleware/loanObjects';
 import db from '../db/index';
 import loanModel from '../models/loanModel';
+import repaymentModel from '../models/repaymentModel';
 
 class loansController {
   static async createLoan(req, res) {
@@ -16,8 +14,8 @@ class loansController {
       if (loan && loan.status === 'approved' && loan.repaid === false) return res.status(409).json({ status: 409, message: 'Your loan is yet to be repaid' });
       const data = await loanObjects.newLoan(req);
       return res.status(201).json({
-        message: `Thank you ${data.firstname} you have successfully applied for a loan.`,
         status: 201,
+        message: `Thank you ${data.firstname} you have successfully applied for a loan.`,
         data,
       });
     } catch (error) { return res.status(500).json(error); }
@@ -47,7 +45,7 @@ class loansController {
     const data = await loanObjects.newRepayment(req);
     return res.status(201).json({
       status: 201,
-      message: 'You have successfully create a loan repayment',
+      message: 'You have successfully created a loan repayment',
       data,
     });
   }
@@ -101,8 +99,14 @@ class loansController {
   }
 
   static async viewAllRepayments(req, res) {
-    const repayments = await repaymentHistory(Number(req.params.loanid));
-    if (!repayments) return res.status(400).json({ message: 'No Repayment History Found' });
+    const { email } = req.user;
+    const loan = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
+    if (email !== loan.rows[0].user) return res.status(401).json({ status: 401, error: 'Access Denied, Check the loan ID Entered' });
+    const loans = loan.rows[0];
+    if (!loans) return res.status(404).json({ status: 404, error: 'No Loan Avalable' });
+    const { rows } = await db.query(repaymentModel.getAllRepayments, [Number(req.params.loanid)]);
+    const repayments = rows;
+    if (!repayments) return res.status(400).json({ status: 400, message: 'No Repayment History Found' });
     return res.status(200).json({ status: 200, data: repayments });
   }
 }

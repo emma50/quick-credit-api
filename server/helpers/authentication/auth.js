@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-// import getUserId from '../getUserId';
 import userModel from '../../models/userModel';
 import db from '../../db/index';
 

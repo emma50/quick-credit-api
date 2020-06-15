@@ -72,7 +72,7 @@ describe('Test loan endpoints User', () => {
       .set('x-auth-token', userToken)
       .send(loanInfo.newLoan)
       .end((err, res) => {
-        res.status.should.be.equal(400);
+        res.status.should.be.equal(409);
         res.body.message.should.have.eql('You have a pending loan with us');
         done();
       });
@@ -112,6 +112,7 @@ describe('Test loan endpoints User', () => {
   it('Should get specific loan application', (done) => {
     chai.request(server)
       .get('/api/v1/loans/1')
+      // .get('/api/v1/loans/82')
       .set('x-auth-token', adminToken)
       .send()
       .end((err, res) => {
@@ -152,6 +153,7 @@ describe('Test loan endpoints User', () => {
   it('Should allow admin to approve/reject a loan (approved)', (done) => {
     chai.request(server)
       .patch('/api/v1/loans/1')
+      // .patch('/api/v1/loans/82')
       .set('x-auth-token', adminToken)
       .send(loanInfo.statusApprove)
       .end((err, res) => {
@@ -162,6 +164,7 @@ describe('Test loan endpoints User', () => {
   it('Should allow admin to approve/reject a loan (rejected)', (done) => {
     chai.request(server)
       .patch('/api/v1/loans/1')
+      // .patch('/api/v1/loans/82')
       .set('x-auth-token', adminToken)
       .send({
         status: 'rejected',
