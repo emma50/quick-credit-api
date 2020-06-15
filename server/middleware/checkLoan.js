@@ -1,8 +1,8 @@
-import getSpecificLoan from '../helpers/specificLoan';
+import loanObjects from './loanObjects';
 
-const checkLoan = async (req, res, next) => {
-  const loan = await getSpecificLoan(Number(req.params.loanid));
-  if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
+const checkLoan = (req, res, next) => {
+  const loan = loanObjects.getSingleLoan(req);
+  if (!loan) return res.status(404).json({ status: 404, message: 'The loan application with the given ID was not found' });
   return next();
 };
 

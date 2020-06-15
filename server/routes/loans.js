@@ -11,20 +11,22 @@ import validatePaidAmount from '../helpers/validation/paidAmount';
 
 const router = express.Router();
 
+const { verifyToken } = auth;
+
 // @route Get api/v1/loans
 // @desc Test post route
 // @access Public
 
-router.get('', auth.verifyToken, isAdminCheck, loanController.allLoans);
+router.get('', verifyToken, isAdminCheck, loanController.allLoans);
 
-router.get('/:loanid', auth.verifyToken, isAdminCheck, loanController.specificLoans);
+router.get('/:loanid', verifyToken, isAdminCheck, loanController.specificLoans);
 
-router.get('/:loanid/repayments', auth.verifyToken, checkUser, loanController.viewAllRepayments);
+router.get('/:loanid/repayments', verifyToken, checkUser, loanController.viewAllRepayments);
 
-router.post('/:loanid/repayment', auth.verifyToken, isAdminCheck, allCustomValidator(validatePaidAmount), loanController.loanRepayments);
+router.post('/:loanid/repayment', verifyToken, isAdminCheck, allCustomValidator(validatePaidAmount), loanController.loanRepayments);
 
-router.post('', auth.verifyToken, allCustomValidator(validateLoan), loanController.createLoan);
+router.post('', verifyToken, allCustomValidator(validateLoan), loanController.createLoan);
 
-router.patch('/:loanid', auth.verifyToken, isAdminCheck, allCustomValidator(validateLoanStatus), loanController.adminApproveLoans);
+router.patch('/:loanid', verifyToken, isAdminCheck, allCustomValidator(validateLoanStatus), loanController.adminApproveLoans);
 
 export default router;

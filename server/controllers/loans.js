@@ -3,33 +3,26 @@ import Repayment from '../models/repayment';
 import getSpecificLoan from '../helpers/specificLoan';
 import notPaid from '../helpers/notPaid';
 import repaymentHistory from '../helpers/repaymentHistory';
-import currentLoan from '../middleware/currentLoan';
-import userObjects from '../middleware/userObjects';
 import loanObjects from '../middleware/loanObjects';
+import db from '../db/index';
+import loanModel from '../models/loanModel';
 
 class loansController {
   static async createLoan(req, res) {
-    const user = await userObjects.getUsersId(req);
-    let loan = currentLoan(user.email);
-    if (loan && loan.status === 'pending') return res.status(400).json({ status: 400, message: `You have a ${loan.status} loan with us` });
-    if (loan && loan.status === 'approved' && loan.repaid === false) return res.status(400).json({ status: 400, message: 'Your loan is yet to be repaid' });
-    loan = loanObjects.newLoan(req);
-    const { firstName, lastName, email } = user;
-    return res.status(201).json({
-      status: 201,
-      data: {
-        id: loan.id,
-        firstName,
-        lastName,
-        user: email,
-        tenor: loan.tenor,
-        amount: loan.amount,
-        paymentInstallment: loan.paymentInstallment,
-        status: loan.status,
-        balance: loan.balance,
-        interest: loan.interest,
-      },
-    });
+    if (req.user.isadmin === true) return res.status(401).json({ status: 401, message: 'You cannot apply for Loan as an Admin' });
+    try {
+      const { rows } = await db.query(loanModel.getLoanByEmail, [req.user.email]);
+      const index = rows.length - 1;
+      const loan = rows[index];
+      if (loan && loan.status === 'pending') return res.status(409).json({ status: 409, message: `You have a ${loan.status} loan with us` });
+      if (loan && loan.status === 'approved' && loan.repaid === false) return res.status(409).json({ status: 409, message: 'Your loan is yet to be repaid' });
+      const data = await loanObjects.newLoan(req);
+      return res.status(201).json({
+        message: `Thank you ${data.firstname} you have successfully applied for a loan.`,
+        status: 201,
+        data,
+      });
+    } catch (error) { return res.status(500).json(error); }
   }
 
   static async loanRepayments(req, res) {
