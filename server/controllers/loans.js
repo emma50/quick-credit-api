@@ -1,7 +1,5 @@
-import Loan from '../models/loan';
 import Repayment from '../models/repayment';
 import getSpecificLoan from '../helpers/specificLoan';
-import notPaid from '../helpers/notPaid';
 import repaymentHistory from '../helpers/repaymentHistory';
 import loanObjects from '../middleware/loanObjects';
 import db from '../db/index';
@@ -68,12 +66,13 @@ class loansController {
   }
 
   static async allLoans(req, res) {
-    const loans = await Loan.fetchAll();
-    if (loans && loans.length === 0) return res.status(400).json({ message: 'No Loan Application Available' });
+    const { rows } = await db.query(loanModel.getAllLoans);
+    const loans = rows;
+    if (!loans.length) return res.status(400).json({ message: 'No Loan Application Available' });
     const { status } = req.query;
     const { repaid } = req.query;
     if ((status !== undefined) && (repaid !== undefined)) {
-      const result = await notPaid(status, JSON.parse(repaid));
+      const result = await loanObjects.notPaid(loans, status, JSON.parse(repaid));
       return res.status(200).json({ status: 200, data: result });
     }
     return res.status(200).json({ status: 200, data: loans });
