@@ -7,22 +7,17 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-/**
- * DB Query
- * @param {object} req
- * @param {object} res
- * @returns {object} object
- */
-export default {
-  query(text, params) {
-    return new Promise((resolve, reject) => {
-      pool.query(text, params)
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
-};
+export default class Query {
+  static async query(queryStrings, values) {
+    let result = '';
+    const client = await pool.connect();
+    try {
+      result = await client.query(queryStrings, values);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      client.release();
+    }
+    return result;
+  }
+}

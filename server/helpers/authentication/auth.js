@@ -1,25 +1,29 @@
 import jwt from 'jsonwebtoken';
-import getUserId from '../getUserId';
+import dotenv from 'dotenv';
+import userModel from '../../models/userModel';
+import db from '../../db/index';
+
+dotenv.config();
 
 const auth = {
   async verifyToken(req, res, next) {
     const token = req.headers['x-auth-token'];
-    if (!token) {
-      return res.status(401).send({ status: 401, message: 'Access denied. No token provided.' });
-    }
+    if (!token) { return res.status(401).send({ status: 401, message: 'Access denied. Your token is missing.' }); }
     try {
       const decoded = await jwt.verify(token, process.env.JWTPRIVATEKEY);
-      const user = getUserId(decoded.userid);
-      if (!user) {
-        return res.status(401).send({ status: 401, message: 'Your token is invalid' });
-      }
+      const { rows } = await db.query(userModel.getUserById, [decoded.userid]);
+      if (!rows[0]) { res.status(401).json({ status: 401, message: 'Your token is invalid' }); }
       req.user = {
         id: decoded.userid,
-        isAdmin: decoded.admin,
+        isadmin: decoded.admin,
+        email: decoded.uemail,
+        firstname: decoded.fname,
+        lastname: decoded.lname,
       };
       return next();
-    } catch (ex) {
-      return res.status(401).json({ status: 401, message: 'Your token is invalid' });
+    } catch (error) {
+      res.status(401).json({ status: 401, message: 'Your token is invalid' });
+      return res.status(500).json(error);
     }
   },
 };
