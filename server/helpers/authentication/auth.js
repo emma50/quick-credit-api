@@ -1,13 +1,14 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import userModel from '../../models/userModel';
 import db from '../../db/index';
+
+dotenv.config();
 
 const auth = {
   async verifyToken(req, res, next) {
     const token = req.headers['x-auth-token'];
-    if (!token) {
-      return res.status(401).send({ status: 401, message: 'Access denied. Your token is missing.' });
-    }
+    if (!token) { return res.status(401).send({ status: 401, message: 'Access denied. Your token is missing.' }); }
     try {
       const decoded = await jwt.verify(token, process.env.JWTPRIVATEKEY);
       const { rows } = await db.query(userModel.getUserById, [decoded.userid]);

@@ -3,24 +3,9 @@ import db from '../db/index';
 import repaymentModel from '../models/repaymentModel';
 
 export default class loanObjects {
-  static async getSingleLoan(req) {
-    const { rows } = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
-    const loan = rows[0];
-    return loan;
-  }
-
   static notPaid(loans, s, r) {
     const repaid = loans.filter((loan) => (loan.status === s && loan.repaid === r));
     return repaid;
-  }
-
-  static async currentLoan(req, res) {
-    if (req.user.isadmin === true) return res.status(409).json({ status: 409, message: 'You cannot apply for Loan as an Admin' });
-    const { rows } = await db.query(loanModel.getLoanByEmail, [req.user.email]);
-    const loan = rows[0];
-    if (loan && loan.status === 'pending') return res.status(409).json({ status: 409, message: `You have a ${loan.status} loan with us` });
-    if (loan && loan.status === 'approved' && loan.repaid === false) return res.status(409).json({ status: 409, message: 'Your loan is yet to be repaid' });
-    return loan;
   }
 
   static newLoanValues(req) {

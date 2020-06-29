@@ -3,6 +3,7 @@ import express from 'express';
 import loanController from '../controllers/loans';
 import auth from '../helpers/authentication/auth';
 import isAdminCheck from '../middleware/isAdmin';
+// import checkUser from '../middleware/checkUser';
 import allCustomValidator from '../middleware/allCustomValidator';
 import validateLoan from '../helpers/validation/loans';
 import validateLoanStatus from '../helpers/validation/loanStatus';
@@ -20,20 +21,11 @@ const {
   adminApproveLoans,
 } = loanController;
 
-// @route Get api/v1/loans
-// @desc Test post route
-// @access Public
-
 router.get('', verifyToken, isAdminCheck, allLoans);
-
 router.get('/:loanid', verifyToken, isAdminCheck, specificLoans);
-
 router.get('/:loanid/repayments', verifyToken, viewAllRepayments);
-
 router.post('/:loanid/repayment', verifyToken, isAdminCheck, allCustomValidator(validatePaidAmount), loanRepayments);
-
 router.post('', verifyToken, allCustomValidator(validateLoan), createLoan);
-
 router.patch('/:loanid', verifyToken, isAdminCheck, allCustomValidator(validateLoanStatus), adminApproveLoans);
 
 export default router;

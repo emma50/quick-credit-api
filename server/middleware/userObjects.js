@@ -1,38 +1,15 @@
-import User from '../models/user';
-import userModel from '../models/userModel';
 import db from '../db/index';
+import userModel from '../models/userModel';
 
 export default class userObjects {
-  static singleUser(req) {
-    const user = User.currentUser(req.params.useremail);
-    return user;
-  }
-
-  static verifyUser(user, req) {
-    const { status } = req.body;
-    User.updateUserStatus(user, status);
-    return user;
-  }
-
-  static async getUser(req) {
-    const values = [
-      req.body.email,
-    ];
-    const { rows } = await db.query(userModel.currentUser, values);
-    return rows;
-  }
-
-  static async getUserNo(req) {
-    const values = [
-      req.body.mobileno,
-    ];
-    const user = await db.query(userModel.currentUser, values);
-    return user;
-  }
-
-  static getUsersId(req) {
-    const user = User.userById(req.user.id);
-    return user;
+  static async currentUser(req, res, next) {
+    try {
+      const user = await db.query(userModel.currentUser, [req.body.email]);
+      if (!user.rows.length) { return next(); }
+      return res.status(409).json({ status: 409, message: 'The user with this email already exist' });
+    } catch (error) {
+      return next(error);
+    }
   }
 
   static newUser(hash, req) {

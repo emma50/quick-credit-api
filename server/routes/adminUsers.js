@@ -8,17 +8,9 @@ import validateUserStatus from '../helpers/validation/status';
 
 const router = express.Router();
 
-/**
- * Route serving Admin Mark User as Verified.
- * @name patch/:useremail/verify
- * @function
- * @memberof module:routers/users~usersRouter
- * @inner
- * @param {useremail} path - Express path
- */
+const { adminVerifyUser, adminViewUsers } = adminUserController;
 
-router.patch('/:useremail/verify', auth.verifyToken, isAdminCheck, allCustomValidator(validateUserStatus), adminUserController.adminVerifyUser);
-
-router.get('', auth.verifyToken, isAdminCheck, adminUserController.adminViewUsers);
+router.patch('/:useremail/verify', auth.verifyToken, isAdminCheck, allCustomValidator(validateUserStatus), adminVerifyUser);
+router.get('', auth.verifyToken, isAdminCheck, adminViewUsers);
 
 export default router;

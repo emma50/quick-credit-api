@@ -7,12 +7,6 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-/**
- * DB Query
- * @param {object} req
- * @param {object} res
- * @returns {object} object
- */
 export default class Query {
   static async query(queryStrings, values) {
     let result = '';
