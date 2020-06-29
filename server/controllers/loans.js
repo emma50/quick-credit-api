@@ -1,162 +1,101 @@
-import Loan from '../models/loan';
-import Repayment from '../models/repayment';
-import validateLoan from '../helpers/validation/loans';
-import getUserById from '../helpers/getUserId';
-import currentLoan from '../helpers/currentLoan';
-import getSpecificLoan from '../helpers/specificLoan';
-import notPaid from '../helpers/notPaid';
-import validateLoanStatus from '../helpers/validation/loanStatus';
-import validatePaidAmount from '../helpers/validation/paidAmount';
-import repaymentHistory from '../helpers/repaymentHistory';
+import loanObjects from '../middleware/loanObjects';
+import db from '../db/index';
+import loanModel from '../models/loanModel';
+import repaymentModel from '../models/repaymentModel';
 
 class loansController {
   static async createLoan(req, res) {
-    const { error } = await validateLoan(req.body);
-    if (error) return res.status(400).json(error.message);
-    const userId = req.user.id;
-    const user = await getUserById(userId);
-    let loan = await currentLoan(user.email);
-    if (loan && loan.status === 'pending') {
-      return res.status(400).json({ message: `You have a ${loan.status} loan with us` });
-    }
-    if (loan && loan.status === 'approved' && loan.repaid === false) {
-      return res.status(400).json({ message: 'Your loan is yet to be repaid' });
-    }
-    const loanamount = parseFloat(req.body.amount);
-    const loantenor = Number(req.body.tenor);
-    const loaninterest = parseFloat(5 / 100) * loanamount;
-    const loanpaymentInstallment = (loanamount + loaninterest) / loantenor;
-    const loanbalance = loanpaymentInstallment * loantenor;
-    loan = new Loan(
-      user.email,
-      loantenor,
-      parseFloat(loanamount).toFixed(2),
-      parseFloat(loanpaymentInstallment).toFixed(2),
-      parseFloat(loanbalance).toFixed(2),
-      parseFloat(loaninterest).toFixed(2),
-    );
-    await loan.save();
-    const {
-      firstName, lastName, email,
-    } = user;
-    const {
-      id, status, tenor, amount, paymentInstallment, balance, interest,
-    } = loan;
-    return res.status(201).json({
-      status: 201,
-      data: {
-        id,
-        firstName,
-        lastName,
-        email,
-        tenor,
-        amount,
-        paymentInstallment,
-        status,
-        balance,
-        interest,
-      },
-    });
-  }
-
-  static async loanRepayments(req, res) {
-    const { error } = validatePaidAmount(req.body);
-    if (error) return res.status(400).json(error.message);
-    const loan = await getSpecificLoan(Number(req.params.loanid));
-    if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
-    if (loan && loan.status === 'pending') return res.status(400).json({ message: `The User loan status is still ${loan.status}` });
-    if (Number(req.body.paidAmount) > Number(loan.balance)) return res.status(400).json({ message: `The amount entered is Higher than the users balance of ${loan.balance}` });
-    const newBalance = parseFloat(loan.balance - req.body.paidAmount).toFixed(2);
-    await Object.assign(loan, { balance: newBalance });
-    if (newBalance === '0.00') { await Object.assign(loan, { repaid: true }); }
-    const repayment = new Repayment(
-      loan.id,
-      parseFloat(req.body.paidAmount).toFixed(2),
-      loan.paymentInstallment,
-    );
-    await repayment.save();
-    const {
-      amount, paymentInstallment, balance,
-    } = loan;
-    const {
-      id, loanId, paidAmount, createdOn,
-    } = repayment;
-    return res.status(201).json({
-      status: 201,
-      data: {
-        id,
-        loanId,
-        createdOn,
-        amount,
-        monthlyInstallment: paymentInstallment,
-        paidAmount,
-        balance,
-      },
-    });
+    if (req.user.isadmin === true) return res.status(401).json({ status: 401, message: 'You cannot apply for Loan as an Admin' });
+    try {
+      const { rows } = await db.query(loanModel.getLoanByEmail, [req.user.email]);
+      const index = rows.length - 1;
+      const loan = rows[index];
+      if (loan && loan.status === 'pending') return res.status(409).json({ status: 409, message: `You have a ${loan.status} loan with us` });
+      if (loan && loan.status === 'approved' && loan.repaid === false) return res.status(409).json({ status: 409, message: 'Your loan is yet to be repaid' });
+      const data = await loanObjects.newLoan(req);
+      return res.status(201).json({
+        status: 201,
+        message: `Thank you ${data.firstname} you have successfully applied for a loan.`,
+        data,
+      });
+    } catch (err) { return res.status(500).json(err); }
   }
 
   static async specificLoans(req, res) {
-    const loan = await getSpecificLoan(Number(req.params.loanid));
-    if (!loan) return res.status(404).json({ message: 'The loan application with the given ID was not found' });
-    return res.status(200).json({
-      status: 200,
-      data: loan,
+    const { rows } = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
+    const loan = rows[0];
+    if (!loan) { return res.status(404).json({ status: 404, message: 'The loan application with the given ID was not found' }); }
+    return res.status(200).json({ status: 200, data: loan });
+  }
+
+
+  static async loanRepayments(req, res) {
+    const { rows } = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
+    const loan = rows[0];
+    if (!loan) return res.status(404).json({ status: 404, message: 'The loan application with the given ID was not found' });
+    if (loan && loan.status === 'pending') return res.status(400).json({ status: 400, message: `The User loan status is still ${loan.status}` });
+    if (Number(req.body.paidamount) > Number(loan.balance)) return res.status(400).json({ status: 400, message: `The amount entered is Higher than the users balance of ${loan.balance}` });
+    const newBalance = parseFloat(loan.balance - req.body.paidamount).toFixed(2);
+    const valuesBal = [parseFloat(newBalance).toFixed(2) || loan.balance, req.params.loanid];
+    await db.query(loanModel.updateBalance, valuesBal);
+    if (newBalance === '0.00') {
+      const valuesRepaid = [true || loan.repaid, req.params.loanid];
+      await db.query(loanModel.updateRepaid, valuesRepaid);
+    }
+    const data = await loanObjects.newRepayment(req);
+    return res.status(201).json({
+      status: 201,
+      message: `You have successfully created a loan repayment for ${loan.email}`,
+      data,
     });
   }
 
   static async allLoans(req, res) {
-    const loans = await Loan.fetchAll();
-    if (loans && loans.length === 0) return res.status(400).json({ message: 'No Loan Application Available' });
+    const { rows } = await db.query(loanModel.getAllLoans);
+    const loans = rows;
+    if (!loans.length) return res.status(404).json({ status: 404, message: 'No Loan Application Available' });
     const { status } = req.query;
     const { repaid } = req.query;
     if ((status !== undefined) && (repaid !== undefined)) {
-      const result = await notPaid(status, JSON.parse(repaid));
+      const result = await loanObjects.notPaid(loans, status, JSON.parse(repaid));
       return res.status(200).json({ status: 200, data: result });
     }
     return res.status(200).json({ status: 200, data: loans });
   }
 
   static async adminApproveLoans(req, res) {
-    const loan = await getSpecificLoan(Number(req.params.loanid));
-    if (!loan) return res.status(404).json({ message: 'No Loan Application Available' });
-    const { error } = validateLoanStatus(req.body);
-    if (error) return res.status(400).json(error.message);
-    Object.assign(loan, { status: req.body.status });
+    const { rows } = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
+    const loan = rows[0];
+    if (!loan) return res.status(404).json({ status: 404, message: 'No Loan Application Available' });
+    const values = [req.body.status || loan.status, req.params.loanid];
+    const updatedLoan = await db.query(loanModel.updateStatus, values);
     const {
-      id, amount, tenor, status, paymentInstallment, interest,
-    } = loan;
-    if (status === 'rejected') {
-      return res.status(200).json({
-        status: 200,
-        data: {
-          loanId: id,
-          loanAmount: amount,
-          tenor,
-          status,
-        },
-      });
-    }
+      id, email, amount, tenor, status, paymentinstallment, interest,
+    } = updatedLoan.rows[0];
     return res.status(200).json({
       status: 200,
+      message: `You have successfully approved a loan for ${email}`,
       data: {
         loanId: id,
-        loanAmount: amount,
+        amount,
         tenor,
         status,
-        monthlyInstallment: paymentInstallment,
+        paymentinstallment,
         interest,
       },
     });
   }
 
-  static async viewAllRepayments(req, res, next) {
-    try {
-      const repayments = await repaymentHistory(Number(req.params.loanid));
-      if (!repayments) return res.status(400).json({ message: 'No Repayment History Found' });
-      return res.status(200).json({ status: 200, data: repayments });
-    } catch (ex) {
-      return next(ex);
-    }
+  static async viewAllRepayments(req, res) {
+    const { email } = req.user;
+    const loan = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
+    if (email !== loan.rows[0].email) return res.status(401).json({ status: 401, error: 'Access Denied, Check the loan ID Entered' });
+    const loans = loan.rows[0];
+    if (!loans) return res.status(404).json({ status: 404, error: 'No Loan Avalable' });
+    const { rows } = await db.query(repaymentModel.getAllRepayments, [Number(req.params.loanid)]);
+    const repayments = rows;
+    if (!repayments) return res.status(404).json({ status: 404, message: 'No Repayment History Found' });
+    return res.status(200).json({ status: 200, data: repayments });
   }
 }
 

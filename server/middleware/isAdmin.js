@@ -1,5 +1,5 @@
 const isAdminCheck = (req, res, next) => {
-  if (req.user.isAdmin === false) {
+  if (req.user.isadmin === false) {
     return res.status(401).send({ status: 401, error: 'Access Denied, you need to be an Admin to gain access' });
   }
   return next();
