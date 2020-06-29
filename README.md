@@ -43,11 +43,11 @@ ___
 ### Sample Users
 Admin-<br/>
 Username: admin@quickcredit.com<br/>
-Password: Domi@2019
+Password: emma@2020
 
 User-<br/>
 Username: user@quickcredit.com<br/>
-Password: Domi@2019
+Password: emma@2020
 
 ___
 
@@ -62,11 +62,8 @@ npm install
 npm start
 ```
 
-<<<<<<< HEAD
-Quick Credit API app should now be running on [localhost:3000](http://localhost:3000/).
-=======
 Quick Credit API should now be running on [localhost:3000](http://localhost:3000/).
->>>>>>> 4d9aa84d1508133fa31db111ab2a3a02133fe04b
+
 ___
 
 ## Author
