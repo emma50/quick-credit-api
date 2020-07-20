@@ -8,16 +8,10 @@
     "start": "node dist/server.js",
     "test": "npm run refresh && nyc mocha --timeout 900000000 -r @babel/register server/test/*.test.js --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-<<<<<<< HEAD
-    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
-    "start:dev": "nodemon --exec babel-node server/server.js",
-    "heroku-postbuild": "npm run build"
-=======
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test",
     "start:dev": "nodemon --exec babel-node server/server.js",
     "heroku-postbuild": "npm run build",
     "refresh": "babel-node ./server/db/migration dropTables && babel-node ./server/db/migration createTables && babel-node ./server/db/seed seedTables"
->>>>>>> 6a0de9ec452eefaf1734004629a15a55a06d6047
   },
   "repository": {
     "type": "git",
