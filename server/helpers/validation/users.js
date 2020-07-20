@@ -8,7 +8,7 @@ const validateUser = Joi.object({
     .email(),
   address: Joi.string().min(6).required(),
   status: Joi.string().min(6),
-  mobileno: Joi.number().min(10).required(),
+  mobileno: Joi.number().integer().min(1000000000).required(),
   isAdmin: Joi.boolean(),
 });
 
