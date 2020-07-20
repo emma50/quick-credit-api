@@ -1,4 +1,4 @@
-import chai, { assert } from 'chai';
+import chai from 'chai';
 import chaiHttp from 'chai-http';
 import server from '../server';
 import userInfo from './userInfo';
@@ -7,212 +7,241 @@ import loanInfo from './loanInfo';
 chai.use(chaiHttp);
 chai.should();
 
-describe('Test loan endpoints User', () => {
+describe('Test loan endpoints Admin', () => {
   let adminToken;
-  let userToken;
-  before((done) => {
-    chai.request(server)
+  before(async () => {
+    const res = await chai.request(server)
       .post('/api/v1/auth/signin')
-      .send(userInfo.user)
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        res.body.should.be.a('object');
-        res.body.data.should.have.property('token');
-        userToken = res.body.data.token;
-      });
-    chai.request(server)
-      .post('/api/v1/auth/signin')
-      .send(userInfo.adminUser)
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        res.body.should.be.a('object');
-        res.body.data.should.have.property('token');
-        adminToken = res.body.data.token;
-        done();
-      });
+      .send(userInfo.adminUser);
+    res.status.should.be.equal(200);
+    res.body.should.be.a('object');
+    res.body.data.should.have.property('token');
+    adminToken = res.body.data.token;
   });
-  it('Should fail if invalid token', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans')
-      .set('x-auth-token', 'iihhhjjjkk')
-      .send(loanInfo.newLoan)
-      .end((err, res) => {
-        res.status.should.be.equal(403);
-        res.body.should.be.a('object');
-        done();
-      });
-  });
-  it('Should deny access without token', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans')
-      .set('x-auth-token', '')
-      .send(loanInfo.newLoan)
-      .end((err, res) => {
-        res.status.should.be.equal(403);
-        res.body.should.be.a('object');
-        done();
-      });
-  });
-  it('should create a loan', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans')
-      .set('x-auth-token', userToken)
-      .send(loanInfo.newLoan)
-      .end((err, res) => {
-        res.should.have.status(201);
-        res.body.should.be.a('object');
-        assert.equal((res.body.data.amount), 10000);
-        assert.equal((res.body.data.tenor), 2);
-        done();
-      });
-  });
-  it('Should not allow user to create another loan if status is pending', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans/')
-      .set('x-auth-token', userToken)
-      .send(loanInfo.newLoan)
-      .end((err, res) => {
-        res.status.should.be.equal(400);
-        res.body.message.should.have.eql('You have a pending loan with us');
-        done();
-      });
-  });
-  it('Should fail if amount is ommited', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans/')
-      .set('x-auth-token', userToken)
-      .send(loanInfo.ommitAmount)
-      .end((err, res) => {
-        res.status.should.be.equal(400);
-        res.body.should.have.eql('Enter Loan amount');
-        done();
-      });
-  });
-  it('Should fail if tenor is omitted', (done) => {
-    chai.request(server)
-      .post('/api/v1/loans')
-      .set('x-auth-token', userToken)
-      .send(loanInfo.ommitTenor)
-      .end((err, res) => {
-        res.status.should.be.equal(400);
-        res.body.should.have.eql('Enter how many months you need to pay back');
-        done();
-      });
-  });
-  it('Should get all loan applications', (done) => {
-    chai.request(server)
+  it('Should fail if no loan application exist', async () => { //
+    const res = await chai.request(server)
       .get('/api/v1/loans')
       .set('x-auth-token', adminToken)
-      .send()
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        done();
-      });
+      .send();
+    res.status.should.be.equal(404);
   });
-  it('Should get specific loan application', (done) => {
-    chai.request(server)
+});
+
+describe('Test loan endpoints User', () => {
+  let userToken;
+  before(async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/auth/signin')
+      .send(userInfo.user);
+    res.status.should.be.equal(200);
+    res.body.should.be.a('object');
+    res.body.data.should.have.property('token');
+    userToken = res.body.data.token;
+  });
+  it('Should fail if token is not user token', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', 'iihhhjjjkk')
+      .send(loanInfo.newLoan);
+    res.status.should.be.equal(401);
+    res.body.should.be.a('object');
+  });
+  it('should create a loan', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', userToken)
+      .send({ amount: 10000, tenor: 2 });
+    res.status.should.be.equal(201);
+  });
+  it('Should not allow user to create another loan if status is pending', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', userToken)
+      .send(loanInfo.newLoan);
+    res.status.should.be.equal(409);
+    res.body.message.should.have.eql('You have a pending loan with us');
+  });
+  it('Should fail if amount is omitted', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', userToken)
+      .send(loanInfo.omitAmount);
+    res.status.should.be.equal(400);
+    res.body.error.should.have.eql('Enter Loan amount');
+  });
+  it('Should fail if tenor is omitted', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', userToken)
+      .send(loanInfo.omitTenor);
+    res.status.should.be.equal(400);
+    res.body.error.should.have.eql('Enter how many months you need to pay back');
+  });
+  it('Should fail if invalid token', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', 'iihhhjjjkk')
+      .send(loanInfo.newLoan);
+    res.status.should.be.equal(401);
+    res.body.should.be.a('object');
+  });
+  it('Should deny access without token', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', '')
+      .send(loanInfo.newLoan);
+    res.status.should.be.equal(401);
+    res.body.should.be.a('object');
+  });
+  it('Should not allow user to get all users', async () => {
+    const res = await chai.request(server)
+      .get('/api/v1/users')
+      .set('x-auth-token', userToken)
+      .send();
+    res.should.have.status(401);
+  });
+});
+
+describe('Test loan endpoints Admin', () => {
+  let adminToken;
+  before(async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/auth/signin')
+      .send(userInfo.adminUser);
+    res.status.should.be.equal(200);
+    res.body.should.be.a('object');
+    res.body.data.should.have.property('token');
+    adminToken = res.body.data.token;
+  });
+  it('Should fail if invalid token', async () => { //
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', 'iihhhjjjkk')
+      .send(loanInfo.newLoan);
+    res.status.should.be.equal(401);
+    res.body.should.be.a('object');
+  });
+  it('Should deny access without token', async () => { //
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', '')
+      .send(loanInfo.newLoan);
+    res.status.should.be.equal(401);
+    res.body.should.be.a('object');
+  });
+  it('should not allow admin to create a loan', async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', adminToken)
+      .send({ amount: 10000, tenor: 2 });
+    res.status.should.be.equal(401);
+  });
+  it('Should get all loan applications', async () => {
+    const res = await chai.request(server)
+      .get('/api/v1/loans')
+      .set('x-auth-token', adminToken)
+      .send();
+    res.status.should.be.equal(200);
+  });
+  it('Should get specific loan application', async () => {
+    const res = await chai.request(server)
       .get('/api/v1/loans/1')
       .set('x-auth-token', adminToken)
-      .send()
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        done();
-      });
+      .send();
+    res.status.should.be.equal(200);
   });
-  it('Should fail if specific loan application ID is invalid', (done) => {
-    chai.request(server)
+  it('Should fail if specific loan application ID is invalid', async () => {
+    const res = await chai.request(server)
       .get('/api/v1/loans/12')
       .set('x-auth-token', adminToken)
-      .send()
-      .end((err, res) => {
-        res.status.should.be.equal(404);
-        done();
-      });
+      .send();
+    res.status.should.be.equal(404);
   });
-  it('Should get current loans (not fully repaid)', (done) => {
-    chai.request(server)
+  it('Should get current loans (not fully repaid)', async () => {
+    const res = await chai.request(server)
       .get('/api/v1/loans?status=approved&repaid=false')
       .set('x-auth-token', adminToken)
-      .send()
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        done();
-      });
+      .send();
+    res.status.should.be.equal(200);
   });
-  it('Should get all repaid loans', (done) => {
-    chai.request(server)
+  it('Should get repaid loans', async () => {
+    const res = await chai.request(server)
       .get('/api/v1/loans?status=approved&repaid=true')
       .set('x-auth-token', adminToken)
-      .send()
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        done();
-      });
+      .send();
+    res.status.should.be.equal(200);
   });
-  it('Should allow admin to approve/reject a loan (approved)', (done) => {
-    chai.request(server)
+  it('Should allow admin to approve/reject a loan', async () => {
+    const res = await chai.request(server)
       .patch('/api/v1/loans/1')
       .set('x-auth-token', adminToken)
-      .send(loanInfo.statusApprove)
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        done();
-      });
+      .send(loanInfo.statusApprove);
+    res.status.should.be.equal(200);
   });
-  it('Should allow admin to approve/reject a loan (rejected)', (done) => {
-    chai.request(server)
+  it('Should fail if approve/reject is omitted or invalid', async () => {
+    const res = await chai.request(server)
       .patch('/api/v1/loans/1')
       .set('x-auth-token', adminToken)
-      .send({
-        status: 'rejected',
-      })
-      .end((err, res) => {
-        res.status.should.be.equal(200);
-        done();
-      });
+      .send(loanInfo.wrongStatus);
+    res.status.should.be.equal(400);
   });
-  it('Should fail if status (approved/rejected) is ommited or invalid', (done) => {
-    chai.request(server)
-      .patch('/api/v1/loans/1')
+  it('Should allow admin to mark a user as verified', async () => {
+    const res = await chai.request(server)
+      .patch('/api/v1/users/user2@quickcredit.com/verify/')
       .set('x-auth-token', adminToken)
-      .send(loanInfo.wrongStatus)
-      .end((err, res) => {
-        res.status.should.be.equal(400);
-        done();
-      });
+      .send(loanInfo.statusVerify);
+    res.should.have.status(200);
+    res.body.should.be.a('object');
   });
-  // ADMIN SECTION
-  it('Should allow admin to mark a user as verified', (done) => {
-    chai.request(server)
+  it('Should fail if status is omitted', async () => {
+    const res = await chai.request(server)
       .patch('/api/v1/users/user@quickcredit.com/verify/')
       .set('x-auth-token', adminToken)
-      .send(loanInfo.statusVerify)
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.body.should.be.a('object');
-        done();
-      });
+      .send();
+    res.should.have.status(400);
+    res.body.error.should.have.eql('Status must be set to verified or unverified');
   });
-  it('Should fail if status is ommited', (done) => {
-    chai.request(server)
+  it('Should fail to verify user if user does not exist', async () => {
+    const res = await chai.request(server)
       .patch('/api/v1/users/user@quickcredit.com/verify/')
       .set('x-auth-token', adminToken)
-      .send()
-      .end((err, res) => {
-        res.should.have.status(400);
-        res.body.should.have.eql('Status must be set to verified or unverified');
-        done();
-      });
+      .send(loanInfo.statusVerify);
+    res.should.have.status(404);
   });
-  it('Should fail if another input other than verified or unverified is sent', (done) => {
-    chai.request(server)
+  it('Should fail if another input other than verified or unverified is sent', async () => {
+    const res = await chai.request(server)
       .patch('/api/v1/users/user@quickcredit.com/verify/')
       .set('x-auth-token', adminToken)
-      .send(loanInfo.wrongStatus)
-      .end((err, res) => {
-        res.should.have.status(400);
-        res.body.should.have.eql('Status must be set to verified or unverified');
-        done();
-      });
+      .send(loanInfo.wrongStatus);
+    res.should.have.status(400);
+    res.body.error.should.have.eql('Status must be set to verified or unverified');
+  });
+  it('Should allow admin to get all users', async () => {
+    const res = await chai.request(server)
+      .get('/api/v1/users')
+      .set('x-auth-token', adminToken)
+      .send();
+    res.should.have.status(200);
+  });
+});
+
+describe('Test loan endpoints User', () => {
+  let userToken;
+  before(async () => {
+    const res = await chai.request(server)
+      .post('/api/v1/auth/signin')
+      .send(userInfo.user);
+    res.status.should.be.equal(200);
+    res.body.should.be.a('object');
+    res.body.data.should.have.property('token');
+    userToken = res.body.data.token;
+  });
+  it('Should not allow user to create another loan if status is approved and repaid is false', async () => { //
+    const res = await chai.request(server)
+      .post('/api/v1/loans')
+      .set('x-auth-token', userToken)
+      .send(loanInfo.newLoan);
+    res.status.should.be.equal(409);
+    res.body.message.should.have.eql('Your loan is yet to be repaid');
   });
 });

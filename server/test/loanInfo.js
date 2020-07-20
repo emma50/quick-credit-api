@@ -3,29 +3,32 @@ const loanInfo = {
     amount: 10000,
     tenor: 2,
   },
-  ommitTenor: {
+  omitTenor: {
     amount: 10000,
   },
-  ommitAmount: {
+  omitAmount: {
     tenor: 2,
   },
   statusApprove: {
     status: 'approved',
   },
+  statusReject: {
+    status: 'rejected',
+  },
   wrongStatus: {
     status: 'sasasas',
   },
-  repaymentAmount: {
-    paidAmount: 2625.00,
-  },
-  invalidAmount: {
-    paidAmount: 'ssss',
-  },
-  highAmount: {
-    paidAmount: 100000,
-  },
   statusVerify: {
     status: 'verified',
+  },
+  repaymentAmount: {
+    paidamount: 2625.00, //
+  },
+  invalidAmount: {
+    paidamount: 'ssss', //
+  },
+  highAmount: {
+    paidamount: 100000, //
   },
   repayStatus: {
     status: 'pending',

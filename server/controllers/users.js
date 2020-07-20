@@ -1,90 +1,56 @@
-import dotenv from 'dotenv';
-import User from '../models/user';
-import validateUser from '../helpers/validation/users';
-import validateSignin from '../helpers/validation/signin';
+import userModel from '../models/userModel';
 import authtok from '../helpers/authentication/authtoken';
-import currentUser from '../helpers/currentUser';
+import userObjects from '../middleware/userObjects';
+import db from '../db/index';
 
-dotenv.config();
-
-/**
- *
- *
- * @class userController
- */
 class userController {
-  /**
-   *
-   *
-   * @static
-   * @param {*} req
-   * @param {*} res
-   * @returns
-   * @memberof userController
-   */
   static async userSignup(req, res) {
-    const { error } = validateUser(req.body);
-    if (error) return res.status(400).json(error.details[0].message);
-    let user = await currentUser(req.body.email);
-    if (user) return res.status(401).json({ message: 'User Already Registered.' });
     const hash = authtok.hashPassword(req.body.password);
-    user = new User(
-      req.body.email,
-      req.body.mobileno,
-      req.body.firstName,
-      req.body.lastName,
-      hash,
-      req.body.address,
-    );
-    await user.save();
-    const {
-      id, firstName, lastName, email, mobileno, isAdmin,
-    } = user;
-    const userToken = authtok.generateToken(id, isAdmin);
-    return res.status(201).json({
-      status: 201,
-      data: {
-        token: userToken,
-        id,
-        firstName,
-        lastName,
-        mobileno,
-        email,
-      },
-    });
+    const values = userObjects.newUser(hash, req);
+    try {
+      const { rows } = await db.query(userModel.createUser, values);
+      const {
+        id, isadmin, firstname, lastname, email,
+      } = rows[0];
+      const userToken = authtok.generateToken(id, isadmin, email, firstname, lastname);
+      return res.status(201).json({
+        status: 201,
+        message: `Hi, ${firstname} You have successfully registered`,
+        data: {
+          token: userToken,
+          id,
+          firstname,
+          lastname,
+          email,
+        },
+      });
+    } catch (error) { return res.status(500).json(error); }
   }
 
-  /**
-   *
-   *
-   * @static
-   * @param {*} req
-   * @param {*} res
-   * @returns
-   * @memberof userController
-   */
   static async userSignin(req, res) {
-    const { error } = validateSignin(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-    const user = await currentUser(req.body.email);
-    if (!user) return res.status(401).json({ message: 'Your email or password is incorrect' });
-    const validPassword = authtok.comparePassword(user.password, req.body.password);
-    if (!validPassword) return res.status(401).json({ message: 'Your email or password is incorrect' });
-    const {
-      id, firstName, lastName, email, mobileno, isAdmin,
-    } = user;
-    const userToken = authtok.generateToken(id, isAdmin);
-    return res.status(200).json({
-      status: 200,
-      data: {
-        token: userToken,
-        id,
-        firstName,
-        lastName,
-        mobileno,
-        email,
-      },
-    });
+    try {
+      const { rows } = await db.query(userModel.currentUser, [req.body.email]);
+      const result = rows[0];
+      if (!result) { return res.status(401).json({ status: 401, message: 'Your email is incorrect' }); }
+      const validPassword = authtok.comparePassword(result.password, req.body.password);
+      if (!validPassword) { return res.status(401).json({ status: 401, message: 'Your password is incorrect' }); }
+      const {
+        id, firstname, lastname, mobileno, email, isadmin,
+      } = result;
+      const userToken = authtok.generateToken(id, isadmin, email, firstname, lastname);
+      return res.status(200).json({
+        status: 200,
+        message: `Hi, ${firstname} You have successfully logged in`,
+        data: {
+          token: userToken,
+          id,
+          firstname,
+          lastname,
+          email,
+          mobileno,
+        },
+      });
+    } catch (error) { return res.status(500).json(error); }
   }
 }
 
