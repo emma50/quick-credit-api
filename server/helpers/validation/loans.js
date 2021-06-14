@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 
 const validateLoan = Joi.object({
   amount: Joi.number().min(2)

@@ -41,14 +41,14 @@ describe('Test signup endpoints', () => {
   it('Should fail if firstName is omitted', async () => {
     const res = await request
       .post('/api/v1/auth/signup/')
-      .send(userInfo.omittedFirstname);
+      .send(userInfo.omittedFirstName);
     res.status.should.be.equal(400);
     res.body.error.should.have.eql('"firstName" is not allowed to be empty');
   });
   it('Should fail if lastName is omitted', async () => {
     const res = await request
       .post('/api/v1/auth/signup/')
-      .send(userInfo.omittedLastname);
+      .send(userInfo.omittedLastName);
     res.status.should.be.equal(400);
     res.body.error.should.have.eql('"lastName" is not allowed to be empty');
   });
@@ -95,7 +95,7 @@ describe('Test signup endpoints', () => {
   it('should fail if Password is invalid', async () => {
     const res = await request
       .post('/api/v1/auth/signin/')
-      .send(userInfo.invalidpassword);
+      .send(userInfo.invalidPassword);
     res.should.have.status(400);
     res.body.should.be.a('object');
   });

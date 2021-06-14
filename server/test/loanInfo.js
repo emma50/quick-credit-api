@@ -22,13 +22,13 @@ const loanInfo = {
     status: 'verified',
   },
   repaymentAmount: {
-    paidamount: 2625.00, //
+    paidAmount: 2625.00, //
   },
   invalidAmount: {
-    paidamount: 'ssss', //
+    paidAmount: 'ssss', //
   },
   highAmount: {
-    paidamount: 100000, //
+    paidAmount: 100000, //
   },
   repayStatus: {
     status: 'pending',

@@ -3,7 +3,6 @@ import express from 'express';
 import loanController from '../controllers/loans';
 import auth from '../helpers/authentication/auth';
 import isAdminCheck from '../middleware/isAdmin';
-// import checkUser from '../middleware/checkUser';
 import allCustomValidator from '../middleware/allCustomValidator';
 import validateLoan from '../helpers/validation/loans';
 import validateLoanStatus from '../helpers/validation/loanStatus';

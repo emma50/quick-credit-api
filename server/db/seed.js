@@ -13,4 +13,5 @@ const seedTables = async () => {
 module.exports = {
   seedTables,
 };
+
 require('make-runnable');

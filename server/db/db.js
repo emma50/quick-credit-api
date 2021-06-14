@@ -20,7 +20,7 @@ CREATE TABLE users (
       repaid BOOLEAN DEFAULT FALSE,
       tenor INTEGER NOT NULL,
       amount INTEGER NOT NULL,
-      paymentInstallment INTEGER NOT NULL,
+      paymentinstallment INTEGER NOT NULL,
       balance INTEGER NOT NULL,
       interest INTEGER NOT NULL,
       status VARCHAR(100) DEFAULT 'pending'
@@ -31,7 +31,7 @@ CREATE TABLE users (
         createdon TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         loanid INTEGER NOT NULL,
         paidamount INTEGER NOT NULL,
-        paymentInstallment INTEGER NOT NULL
+        paymentinstallment INTEGER NOT NULL
       );
       INSERT INTO
       users(email, mobileno, firstname, lastname, password, address)

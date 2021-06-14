@@ -7,6 +7,7 @@ import adminUsers from './adminUsers';
 import loans from './loans';
 import swaggerSpec from '../config/swagger';
 import winston from '../config/winston';
+import error from '../middleware/error';
 
 export default (app) => {
   app.use(cors());
@@ -17,4 +18,5 @@ export default (app) => {
   app.use('/api/v1/users', adminUsers);
   app.use('/api/v1/loans', loans);
   app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use(error);
 };

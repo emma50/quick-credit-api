@@ -9,18 +9,18 @@ export default class loanObjects {
   }
 
   static newLoanValues(req) {
-    const loanamount = parseFloat(req.body.amount);
-    const loantenor = Number(req.body.tenor);
-    const loaninterest = parseFloat(5 / 100) * loanamount;
-    const loanpaymentInstallment = (loanamount + loaninterest) / loantenor;
-    const loanbalance = loanpaymentInstallment * loantenor;
+    const loanAmount = parseFloat(req.body.amount);
+    const loanTenor = Number(req.body.tenor);
+    const loanInterest = parseFloat(5 / 100) * loanAmount;
+    const loanPaymentInstallment = (loanAmount + loanInterest) / loanTenor;
+    const loanBalance = loanPaymentInstallment * loanTenor;
     const values = [
       req.user.email,
-      loantenor,
-      parseFloat(loanamount).toFixed(2),
-      parseFloat(loanpaymentInstallment).toFixed(2),
-      parseFloat(loanbalance).toFixed(2),
-      parseFloat(loaninterest).toFixed(2),
+      loanTenor,
+      parseFloat(loanAmount).toFixed(2),
+      parseFloat(loanPaymentInstallment).toFixed(2),
+      parseFloat(loanBalance).toFixed(2),
+      parseFloat(loanInterest).toFixed(2),
     ];
     return values;
   }
@@ -51,7 +51,7 @@ export default class loanObjects {
     const loans = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
     const postValues = [
       loans.rows[0].id,
-      parseFloat(req.body.paidamount).toFixed(2),
+      parseFloat(req.body.paidAmount).toFixed(2),
       loans.rows[0].paymentinstallment,
     ];
     const repayment = await db.query(repaymentModel.createRepayment, postValues);
