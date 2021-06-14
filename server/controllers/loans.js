@@ -28,14 +28,13 @@ class loansController {
     return res.status(200).json({ status: 200, data: loan });
   }
 
-
   static async loanRepayments(req, res) {
     const { rows } = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
     const loan = rows[0];
     if (!loan) return res.status(404).json({ status: 404, message: 'The loan application with the given ID was not found' });
     if (loan && loan.status === 'pending') return res.status(400).json({ status: 400, message: `The User loan status is still ${loan.status}` });
-    if (Number(req.body.paidamount) > Number(loan.balance)) return res.status(400).json({ status: 400, message: `The amount entered is Higher than the users balance of ${loan.balance}` });
-    const newBalance = parseFloat(loan.balance - req.body.paidamount).toFixed(2);
+    if (Number(req.body.paidAmount) > Number(loan.balance)) return res.status(400).json({ status: 400, message: `The amount entered is Higher than the users balance of ${loan.balance}` });
+    const newBalance = parseFloat(loan.balance - req.body.paidAmount).toFixed(2);
     const valuesBal = [parseFloat(newBalance).toFixed(2) || loan.balance, req.params.loanid];
     await db.query(loanModel.updateBalance, valuesBal);
     if (newBalance === '0.00') {
@@ -76,7 +75,7 @@ class loansController {
       status: 200,
       message: `You have successfully approved a loan for ${email}`,
       data: {
-        loanId: id,
+        loanid: id,
         amount,
         tenor,
         status,
@@ -91,7 +90,7 @@ class loansController {
     const loan = await db.query(loanModel.getLoanById, [Number(req.params.loanid)]);
     if (email !== loan.rows[0].email) return res.status(401).json({ status: 401, error: 'Access Denied, Check the loan ID Entered' });
     const loans = loan.rows[0];
-    if (!loans) return res.status(404).json({ status: 404, error: 'No Loan Avalable' });
+    if (!loans) return res.status(404).json({ status: 404, error: 'No Loan AvaIlable' });
     const { rows } = await db.query(repaymentModel.getAllRepayments, [Number(req.params.loanid)]);
     const repayments = rows;
     if (!repayments) return res.status(404).json({ status: 404, message: 'No Repayment History Found' });

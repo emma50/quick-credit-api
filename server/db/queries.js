@@ -18,7 +18,7 @@ const createQueries = {
     repaid BOOLEAN DEFAULT FALSE,
     tenor VARCHAR(100) NOT NULL,
     amount VARCHAR(100) NOT NULL,
-    paymentInstallment VARCHAR(100) NOT NULL,
+    paymentinstallment VARCHAR(100) NOT NULL,
     balance VARCHAR(100) NOT NULL,
     interest VARCHAR(100) NOT NULL,
     status VARCHAR(100) DEFAULT 'pending'
@@ -28,7 +28,7 @@ const createQueries = {
     createdon TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     loanid VARCHAR(100) NOT NULL,
     paidamount VARCHAR(100) NOT NULL,
-    paymentInstallment VARCHAR(100) NOT NULL
+    paymentinstallment VARCHAR(100) NOT NULL
   )`,
 };
 

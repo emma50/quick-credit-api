@@ -13,11 +13,12 @@ const authtoken = {
     return bcrypt.compareSync(password, hashPassword);
   },
 
-  generateToken(id, isadmin, email, firstname, lastname) {
+  generateToken(id, isAdmin, email, firstName, lastName) {
     const token = jwt.sign({
-      userid: id, admin: isadmin, uemail: email, fname: firstname, lname: lastname,
-    }, process.env.JWTPRIVATEKEY);
+      userId: id, admin: isAdmin, uEmail: email, fName: firstName, lName: lastName,
+    }, process.env.JWT_PRIVATE_KEY);
     return token;
   },
 };
+
 export default authtoken;

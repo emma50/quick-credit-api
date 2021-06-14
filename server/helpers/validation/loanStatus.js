@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 
 const validateLoanStatus = Joi.object({
   status: Joi.string().min(6).valid('approved', 'rejected').required()

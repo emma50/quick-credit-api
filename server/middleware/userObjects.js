@@ -15,7 +15,7 @@ export default class userObjects {
   static newUser(hash, req) {
     const values = [
       req.body.email,
-      req.body.mobileno,
+      req.body.mobileNo,
       req.body.firstName,
       req.body.lastName,
       hash,

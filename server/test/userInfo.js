@@ -1,7 +1,7 @@
 const userInfo = {
   signup: {
     email: 'emmanuel@yahoo.com',
-    mobileno: '08141300333',
+    mobileNo: '08141300333',
     firstName: 'John',
     lastName: 'Wick',
     password: 'emma@2020',
@@ -25,7 +25,7 @@ const userInfo = {
   },
   signupEmailOmitted: {
     email: '',
-    mobileno: '08141300333',
+    mobileNo: '08141300333',
     firstName: 'John',
     lastName: 'Wick',
     password: 'emma@2020',
@@ -33,23 +33,23 @@ const userInfo = {
   },
   invalidEmail: {
     email: 'emmanuel:yahoo.com',
-    mobileno: '08141300333',
+    mobileNo: '08141300333',
     firstName: 'John',
     lastName: 'Wick',
     password: 'emma@2020',
     address: '39, Victoria street, Ojota',
   },
-  omittedFirstname: {
+  omittedFirstName: {
     email: 'emmanuel@yahoo.com',
-    mobileno: '08141200333',
+    mobileNo: '08141200333',
     firstName: '',
     lastName: 'Wick',
     password: 'emma@2019',
     address: '39, Victoria street, Ojota',
   },
-  omittedLastname: {
+  omittedLastName: {
     email: 'emmanuel@yahoo.com',
-    mobileno: '08141300333',
+    mobileNo: '08141300333',
     firstName: 'John',
     lastName: '',
     password: 'emma@2020',
@@ -57,7 +57,7 @@ const userInfo = {
   },
   omittedPassword: {
     email: 'emmanuel@yahoo.com',
-    mobileno: '08141300333',
+    mobileNo: '08141300333',
     firstName: 'John',
     lastName: 'Wick',
     password: '',
@@ -65,7 +65,7 @@ const userInfo = {
   },
   omittedAddress: {
     email: 'emmanuel@yahoo.com',
-    mobileno: '08141300333',
+    mobileNo: '08141300333',
     firstName: 'John',
     lastName: 'Wick',
     password: 'emma@2020',
@@ -81,7 +81,7 @@ const userInfo = {
     email: 'emmanuelyahoo.com',
     password: 'emma@2020',
   },
-  invalidpassword: {
+  invalidPassword: {
     email: 'emmanuel@yahoo.com',
     password: 'd',
   },
