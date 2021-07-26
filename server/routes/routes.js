@@ -4,8 +4,7 @@ import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import compression from 'compression';
 import responseTime from 'response-time';
-import RateLimit from 'express-rate-limit';
-import RedisStore from 'rate-limit-redis';
+import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import users from './users';
 import adminUsers from './adminUsers';
@@ -15,12 +14,9 @@ import winston from '../config/winston';
 import error from '../middleware/error';
 
 export default (app) => {
-  const limiter = new RateLimit({
-    store: new RedisStore({
-      prefix: 'rl:',
-    }),
-    windowMs: 10 * 60 * 1000, // 10 minutes
-    max: 50, // limit each IP to 50 requests per windowMs
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
   });
   app.use(cors());
   app.use(helmet());
