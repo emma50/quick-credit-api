@@ -16,7 +16,7 @@ import error from '../middleware/error';
 export default (app) => {
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    max: 200, // limit each IP to 200 requests per windowMs
   });
   app.use(cors());
   app.use(helmet());
@@ -38,11 +38,13 @@ export default (app) => {
       author: 'Okwuidegbe Emmanuel',
       email: 'okwuidegbeemmauel@gmail.com',
       about: 'Quick Credit API is an online lending platform API that provides short term soft loans to individuals.',
+      goTo: 'You can visit the github repository https://github.com/emma50/quick-credit-api to get more details about this project',
     });
   });
   app.use((req, res) => res.status(404).json({
     status: 404,
     message: 'Hello, page not found. Try connecting using an api testing application like POSTMAN',
+    goTo: 'You can visit the github repository https://github.com/emma50/quick-credit-api to get more details about this project',
   }));
   app.use(error);
 };
